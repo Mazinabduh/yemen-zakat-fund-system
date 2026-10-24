@@ -4,14 +4,15 @@
         <shape android:shape="rectangle">
             <gradient
                 android:type="radial"
-                android:gradientRadius="900dp"
-                android:centerX="0.5" android:centerY="0.42"
-                android:startColor="#166534"
-                android:endColor="#0B3D1F" />
+                android:gradientRadius="1100dp"
+                android:centerX="0.5" android:centerY="0.28"
+                android:startColor="#0F3D24"
+                android:centerColor="#07220F"
+                android:endColor="#030D06" />
         </shape>
     </item>
     <!-- الشعار في المنتصف (يظهر لحظة الإطلاق قبل تحميل WebView) -->
-    <item android:gravity="center" android:width="130dp" android:height="130dp">
+    <item android:gravity="center" android:width="140dp" android:height="140dp">
         <bitmap android:src="@drawable/splash_logo" android:gravity="center" />
     </item>
 </layer-list>

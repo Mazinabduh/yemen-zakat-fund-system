@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#14532d">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#04120b">
 <title>صندوق تحصيل الزكاة - الجمهورية اليمنية</title>
 <link rel="icon" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/icon-192.png">
@@ -12,49 +12,65 @@
 </head>
 <body>
 
-<!-- ===== شاشة البداية (Splash) ===== -->
+<!-- ===== الشاشة السينمائية (Splash Cinema) ===== -->
 <div id="splash" class="splash">
-  <div class="splash-inner">
-    <div class="splash-emblem">
-      <svg class="splash-logo" viewBox="0 0 200 200" aria-hidden="true"></svg>
-      <div class="splash-rings"><span></span><span></span><span></span></div>
+  <div class="sp-stars" id="sp-stars" aria-hidden="true"></div>
+  <div class="sp-orb sp-o1" aria-hidden="true"></div>
+  <div class="sp-orb sp-o2" aria-hidden="true"></div>
+  <div class="sp-orb sp-o3" aria-hidden="true"></div>
+  <div class="sp-gridfloor" aria-hidden="true"></div>
+  <div class="sp-stage">
+    <div class="sp-core">
+      <div class="sp-backlogo" aria-hidden="true"></div>
+      <div class="sp-glow" aria-hidden="true"></div>
+      <div class="sp-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="sp-badge"><img id="sp-logo" src="assets/logo.svg" alt="شعار الزكاة"></div>
     </div>
-    <h1 class="splash-title">صندوق تحصيل الزكاة</h1>
-    <p class="splash-sub">الجمهورية اليمنية</p>
-    <div class="splash-loader"><div class="splash-bar"></div></div>
-    <div class="splash-credits">
-      <div class="splash-credit c1">برمجة وتطوير مازن عبدالوهاب</div>
-      <div class="splash-credit c2">إدارة محاسبة صدام نجم الدين</div>
-    </div>
+    <h1 class="sp-title">صندوق تحصيل الزكاة</h1>
+    <div class="sp-sub">AL-YEMEN ZAKAT FUND</div>
+    <div class="sp-divider" aria-hidden="true"><i></i></div>
+    <div class="sp-credit">تطوير وبرمجة <b>مازن عبدالوهاب</b></div>
+    <div class="sp-credit acc">إدارة محاسبة <b>صدام نجم الدين</b></div>
+    <div class="sp-progress" aria-hidden="true"><div class="sp-bar"></div></div>
+    <div class="sp-status" id="sp-status">جاري تجهيز النظام…</div>
   </div>
 </div>
 
 <!-- ===== شاشة الدخول ===== -->
 <div id="login-screen" class="login-screen hidden">
+  <canvas class="lg-canvas" id="lg-canvas" aria-hidden="true"></canvas>
+  <div class="lg-veil" aria-hidden="true"></div>
   <div class="login-card">
     <div class="login-head">
-      <svg class="login-logo" viewBox="0 0 200 200" aria-hidden="true"></svg>
+      <div class="lg-logo-wrap">
+        <div class="lg-logo-ring" aria-hidden="true"></div>
+        <div class="login-logo"><img src="assets/logo.svg" alt="شعار الزكاة"></div>
+      </div>
       <h1>صندوق تحصيل الزكاة</h1>
-      <p>الجمهورية اليمنية</p>
+      <p>الجمهورية اليمنية — الجهاز المركزي للزكاة</p>
     </div>
     <form id="login-form" autocomplete="off">
       <label class="field">
-        <span>اسم المستخدم</span>
+        <span><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> اسم المستخدم</span>
         <input type="text" id="login-username" required placeholder="admin" autocapitalize="off">
       </label>
       <label class="field">
-        <span>كلمة المرور</span>
+        <span><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> كلمة المرور</span>
         <div class="pass-wrap">
           <input type="password" id="login-password" required placeholder="••••••••">
           <button type="button" class="pass-eye" data-eye="login-password" title="إظهار كلمة المرور">👁</button>
         </div>
       </label>
       <div id="login-error" class="login-error hidden"></div>
-      <button type="submit" class="btn btn-primary btn-block" id="login-btn">تسجيل الدخول</button>
+      <button type="submit" class="btn btn-gold btn-block login-submit" id="login-btn">
+        <span>تسجيل الدخول</span>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        <span class="btn-shine" aria-hidden="true"></span>
+      </button>
     </form>
     <div class="login-foot">
       <p class="hint" id="login-hint">الدخول الافتراضي: admin / admin123</p>
-      <p class="credits-mini">تطوير وبرمجة مازن عبدالوهاب · إدارة محاسبة صدام نجم الدين · جميع الحقوق محفوظة لشركة yemen coding</p>
+      <p class="credits-mini">تطوير وبرمجة مازن عبدالوهاب · إدارة محاسبة صدام نجم الدين<br>جميع الحقوق محفوظة لشركة yemen coding</p>
     </div>
   </div>
 </div>
@@ -70,7 +86,7 @@
         <small id="tb-subtitle">الجمهورية اليمنية</small>
       </div>
     </div>
-    <div class="topbar-actions">
+    <div class="topbar-actions" style="display:flex;align-items:center;gap:8px">
       <span id="tb-user" class="tb-user"></span>
       <button id="btn-lock" class="icon-btn" title="قفل التطبيق">🔒</button>
     </div>
@@ -83,16 +99,30 @@
         <div class="s-foot-1">تطوير وبرمجة مازن عبدالوهاب</div>
         <div class="s-foot-2">إدارة محاسبة صدام نجم الدين</div>
         <div class="s-foot-3">جميع الحقوق محفوظة لشركة yemen coding</div>
-        <div class="s-foot-ver" id="app-version">الإصدار 1.0.0</div>
+        <div class="s-foot-ver" id="app-version">الإصدار 1.1.0</div>
       </div>
     </aside>
     <div id="scrim" class="scrim"></div>
     <main id="main" class="main"></main>
   </div>
+
+  <!-- الشريط السفلي -->
+  <nav class="bottom-bar" id="bottom-bar" aria-label="التنقل السريع">
+    <div class="bottom-bar-bg" aria-hidden="true"></div>
+  </nav>
 </div>
 
-<!-- ===== منطقة الطباعة ===== -->
-<div id="print-root"></div>
+<!-- ===== معاينة الطباعة ===== -->
+<div id="print-overlay" class="print-overlay">
+  <div class="print-toolbar">
+    <div class="pt-title">🖨️ معاينة الطباعة — <span id="pt-doc">مستند</span></div>
+    <div class="pt-actions">
+      <button class="btn btn-gold btn-sm" id="pt-print">🖨️ طباعة / حفظ PDF</button>
+      <button class="btn btn-dark btn-sm" id="pt-close">✕ إغلاق</button>
+    </div>
+  </div>
+  <div class="print-stage"><div id="print-root"></div></div>
+</div>
 
 <!-- ===== نافذة حوارية ===== -->
 <div id="modal-root" class="modal-root hidden"></div>
@@ -112,6 +142,7 @@
 <script src="js/thermal.js"></script>
 <script src="js/print.js"></script>
 <script src="js/backup.js"></script>
+<script src="js/demo-data.js"></script>
 <script src="js/reports.js"></script>
 <script src="js/views/collections.js"></script>
 <script src="js/views/expenses.js"></script>

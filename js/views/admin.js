@@ -247,7 +247,10 @@ Views.Settings = (function () {
           '<label class="field"><span>كلمة المرور الحالية</span><input id="pw-old" type="password" required></label>' +
           '<label class="field"><span>الجديدة (6+ أحرف)</span><input id="pw-new" type="password" required minlength="6"></label>' +
           '<label class="field"><span>تأكيد الجديدة</span><input id="pw-new2" type="password" required minlength="6"></label>' +
-          '<div class="actions-row full"><button class="btn btn-primary" type="submit">تحديث كلمة المرور</button></div></form></div>';
+          '<div class="actions-row full"><button class="btn btn-primary" type="submit">تحديث كلمة المرور</button></div></form></div>' +
+        '<div class="card"><h3>🧪 البيانات التجريبية</h3><p class="logout-note">بيانات واقعية (تحصيلات ومصروفات لآخر 8 أشهر) لتجربة التقارير والرسوم — تُحذف بضغطة واحدة دون التأثير على بياناتك الحقيقية.</p>' +
+          '<div class="actions-row"><button class="btn btn-outline" id="demo-load">⬇️ تحميل البيانات التجريبية</button>' +
+          '<button class="btn btn-danger" id="demo-clear">🗑 حذف كل البيانات التجريبية</button></div></div>';
 
       document.getElementById("st-pw").value = v[5];
       document.getElementById("st-form").addEventListener("submit", function (e) {
@@ -269,6 +272,24 @@ Views.Settings = (function () {
         Auth.changePassword(Auth.session().id, document.getElementById("pw-old").value, n1)
           .then(function () { toast("✅ تم تغيير كلمة المرور"); e.target.reset(); })
           ["catch"](function (er) { toast(er.message, "err"); });
+      });
+      /* البيانات التجريبية */
+      document.getElementById("demo-load").addEventListener("click", function () {
+        var b = this; b.disabled = true; b.textContent = "⏳ جارٍ التحميل…";
+        DemoData.load().then(function (ok) {
+          toast(ok ? "✅ تم تحميل البيانات التجريبية — جرّب لوحة المعلومات والتقارير" : "البيانات التجريبية محمّلة مسبقاً");
+          b.disabled = false; b.textContent = "⬇️ تحميل البيانات التجريبية";
+        })["catch"](function (er) { toast("خطأ: " + er.message, "err"); b.disabled = false; b.textContent = "⬇️ تحميل البيانات التجريبية"; });
+      });
+      document.getElementById("demo-clear").addEventListener("click", function () {
+        App.modal("تأكيد الحذف", "<p>سيتم حذف كل الإيصالات والصرفيات التجريبية فقط. هل أنت متأكد؟</p>", [
+          { t: "إلغاء", cls: "btn-ghost" },
+          { t: "نعم، احذف", cls: "btn-danger", fn: function () {
+            DemoData.clear().then(function (n) {
+              toast("🗑 حُذف " + n + " سجل تجريبي");
+            })["catch"](function (er) { toast("خطأ: " + er.message, "err"); });
+          }}
+        ]);
       });
     });
   }

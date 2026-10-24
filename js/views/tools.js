@@ -304,7 +304,7 @@ Views.About = (function () {
         '<p style="color:var(--gold-dark);font-weight:700">الجمهورية اليمنية</p>' +
         '<p class="logout-note" style="margin-top:8px">نظام متكامل لإدارة وتحصيل الزكاة ومصروفاتها على الفئات الثماني — يعمل دون إنترنت بالكامل (Offline-First)، ويجمع البيانات تلقائياً من المراكز إلى المحافظات فالمقر المركزي.</p>' +
         '<div class="dl" style="text-align:right;margin-top:14px;max-width:420px;margin-left:auto;margin-right:auto">' +
-          "<dt>الإصدار</dt><dd>1.0.0</dd>" +
+          "<dt>الإصدار</dt><dd>1.1.0</dd>" +
           "<dt>المنصة</dt><dd>" + (U.isAndroid() ? "Android (تطبيق أصلي)" : "متصفح / PWA يعمل من ملف واحد") + "</dd>" +
           "<dt>قاعدة البيانات</dt><dd>IndexedDB محلية مشفّرة الوصول</dd>" +
           "<dt>الطباعة</dt><dd>A4 رسمي + حراري ESC/POS بلوتوث (58/80مم)</dd>" +

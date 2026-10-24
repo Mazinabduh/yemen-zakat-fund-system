@@ -1,5 +1,7 @@
 /* print.js — محرك الطباعة الرسمي A4 (نمط حكومي) لكل التقارير والإيصالات
-   يحوّل أي تقرير إلى صفحة طباعة ثم window.print() | مازن عبدالوهاب */
+   إصدار 2: معاينة ورقية قبل الطباعة + إصلاح الصفحة البيضاء نهائياً
+   (كان المحتوى يُمسح بعد 600ms بينما مهمة طباعة أندرويد لا تزال تجمع المستند)
+   مازن عبدالوهاب */
 "use strict";
 var PrintGov = (function () {
 
@@ -57,7 +59,7 @@ var PrintGov = (function () {
     return '<div class="gov-foot">' +
       '<span>أُصدر بتاريخ: ' + U.esc(U.today()) + " — " + U.esc(U.nowTime()) + '</span>' +
       '<span>بواسطة: ' + U.esc(u.name || "—") + " (" + U.esc(Auth.roleAr()) + ')</span>' +
-      '<span>التطبيق: صندوق تحصيل الزكاة v1.0.0</span>' +
+      '<span>التطبيق: صندوق تحصيل الزكاة v1.1.0</span>' +
     '</div>' +
     '<div class="gov-signs">' +
       '<div class="sig"><div>المحاسب</div><div class="line">الاسم والتوقيع</div></div>' +
@@ -67,9 +69,43 @@ var PrintGov = (function () {
     '<div class="gov-credits">تطوير وبرمجة مازن عبدالوهاب — إدارة محاسبة صدام نجم الدين — جميع الحقوق محفوظة لشركة yemen coding</div>';
   }
 
-  /* تكوين تقرير كامل ثم طباعة */
+  /* ============ التشغيل: معاينة ثم طباعة (بدون مسح المحتوى) ============ */
+  var _pendingTitle = "مستند";
+
+  function openPreview(html, title, beforePrint) {
+    var root = document.getElementById("print-root");
+    root.innerHTML = html;
+    document.getElementById("pt-doc").textContent = title || "مستند";
+    document.body.classList.add("print-open");
+    if (beforePrint) beforePrint();
+    /* ترحيل لأعلى المعاينة */
+    var stage = document.querySelector(".print-stage");
+    if (stage) stage.scrollTop = 0;
+    return Promise.resolve();
+  }
+
+  /* زر الطباعة داخل المعاينة — المحتوى يبقى حتى يغلق المستخدم المعاينة */
+  function doPrint() {
+    try {
+      if (window.AndroidBridge && window.AndroidBridge.printPage) {
+        /* أندرويد: مدير الطباعة الأصلي (يشمل حفظ PDF) — لا نمسح المحتوى أبداً قبل انتهاء المهمة */
+        window.AndroidBridge.printPage();
+      } else {
+        window.print();
+      }
+    } catch (e) {
+      try { window.print(); } catch (e2) {}
+    }
+  }
+
+  function closePreview() {
+    document.body.classList.remove("print-open");
+    document.getElementById("print-root").innerHTML = "";
+  }
+
+  /* تكوين تقرير كامل ثم فتح المعاينة (تُطبع تلقائياً بعد ثوانٍ) */
   function printReport(cfg) {
-    /* cfg: {title, meta:[[k,v]], headers, rows, foot, sums, extraHTML} */
+    /* cfg: {title, meta:[[k,v]], headers, rows, foot, sums, extraHTML, autoPrint} */
     var html = '<div class="gov-page">' +
       head(cfg) +
       '<div class="gov-title"><h2>' + U.esc(cfg.title) + "</h2></div>" +
@@ -79,14 +115,19 @@ var PrintGov = (function () {
       (cfg.sums ? sumBoxes(cfg.sums) : "") +
       foot(cfg) +
     "</div>";
-    return run(html);
+    return openPreview(html, cfg.title, null).then(function () {
+      /* طباعة تلقائية مريحة بعد عرض المعاينة — تعمل على الويب وأندرويد */
+      if (cfg.autoPrint !== false) {
+        setTimeout(function () { if (document.body.classList.contains("print-open")) doPrint(); }, 900);
+      }
+    });
   }
 
   /* إيصال A4 نسختين (المؤدي + الصندوق) */
   function printReceiptA4(d) {
     var kv = function (k, v) { return "<tr><th style='width:32%'>" + U.esc(k) + "</th><td>" + U.esc(v == null ? "—" : v) + "</td></tr>"; };
     var one = function (copy) {
-      return '<div style="page-break-after:' + (copy === 1 ? "always" : "auto") + '">' +
+      return '<div class="pb" style="page-break-after:' + (copy === 1 ? "always" : "auto") + '">' +
         head(d) +
         '<div class="gov-title"><h2>إيصال تحصيل زكاة رسمي (' + (copy === 1 ? "نسخة المؤدّي" : "نسخة الصندوق") + ")</h2></div>" +
         '<div class="gov-meta"><span><b>رقم الإيصال:</b> ' + U.esc(d.receiptNo) + "</span><span><b>التاريخ:</b> " + U.esc(d.date) + "</span><span><b>الوقت:</b> " + U.esc(d.time) + "</span></div>" +
@@ -103,7 +144,7 @@ var PrintGov = (function () {
         foot(d) + "</div>";
     };
     var html = '<div class="gov-page">' + one(1) + one(2) + "</div>";
-    return run(html, function () {
+    return openPreview(html, "إيصال " + d.receiptNo, function () {
       try {
         if (typeof QRCode !== "undefined") {
           [1, 2].forEach(function (i) {
@@ -112,25 +153,26 @@ var PrintGov = (function () {
           });
         }
       } catch (e) {}
+    }).then(function () {
+      setTimeout(function () { if (document.body.classList.contains("print-open")) doPrint(); }, 900);
     });
   }
 
-  function run(html, beforePrint) {
-    var root = document.getElementById("print-root");
-    root.innerHTML = html;
-    if (beforePrint) beforePrint();
-    setTimeout(function () {
-      try {
-        /* في WebView أندرويد: عبر مدير الطباعة الأصلي (يحتوي «حفظ كـ PDF» أيضاً) */
-        if (window.AndroidBridge && window.AndroidBridge.printPage) {
-          window.AndroidBridge.printPage();
-        } else {
-          window.print();
-        }
-      } finally { setTimeout(function () { root.innerHTML = ""; }, 600); }
-    }, 250);
-    return Promise.resolve();
+  function initToolbar() {
+    var p = document.getElementById("pt-print");
+    var c = document.getElementById("pt-close");
+    if (p) p.onclick = doPrint;
+    if (c) c.onclick = closePreview;
+    /* ESC يغلق المعاينة */
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && document.body.classList.contains("print-open")) closePreview();
+    });
+    /* بعد انتهاء حوار الطباعة على الويب: أبقِ المعاينة مفتوحة (المستخدم يغلقها بنفسه) */
   }
 
-  return { printReport: printReport, printReceiptA4: printReceiptA4, head: head, table: table };
+  return {
+    printReport: printReport, printReceiptA4: printReceiptA4,
+    head: head, table: table, doPrint: doPrint, closePreview: closePreview,
+    initToolbar: initToolbar
+  };
 })();

@@ -3,7 +3,10 @@
     <color name="green_900">#0B3D1F</color>
     <color name="green_800">#14532D</color>
     <color name="green_700">#166534</color>
-    <color name="gold">#C9A227</color>
-    <color name="gold_light">#F0D682</color>
+    <color name="gold">#D4AF37</color>
+    <color name="gold_light">#F2DC94</color>
     <color name="white">#FFFFFF</color>
+    <color name="night_bg">#04120B</color>
+    <color name="night_bg_2">#07220F</color>
+    <color name="status_bar">#030D06</color>
 </resources>
