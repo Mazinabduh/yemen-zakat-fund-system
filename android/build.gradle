@@ -1,0 +1,4 @@
+// مشروع صندوق تحصيل الزكاة — yemen coding
+plugins {
+    id 'com.android.application' version '8.5.2' apply false
+}

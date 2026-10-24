@@ -1,0 +1,82 @@
+name: Android Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.7'
+
+      - name: Copy web app into Android assets
+        run: |
+          mkdir -p android/app/src/main/assets
+          rsync -a --delete \
+            --exclude '.git*' --exclude 'android' --exclude '.github' --exclude 'docs' \
+            ./ android/app/src/main/assets/
+          ls -la android/app/src/main/assets/
+
+      - name: Build APKs (debug + release)
+        working-directory: android
+        run: |
+          gradle --no-daemon --stacktrace assembleDebug assembleRelease
+
+      - name: Prepare artifacts
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/debug/app-debug.apk out/zakat-fund-debug.apk
+          cp android/app/build/outputs/apk/release/app-release.apk out/zakat-fund-v1.0.0.apk
+          ls -la out/
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zakat-android-apk
+          path: out/*.apk
+          if-no-files-found: error
+
+      - name: Auto-release on main (rolling latest)
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest-build
+          name: "أحدث إصدار — Latest Android Build"
+          body: |
+            ## 📱 تطبيق صندوق تحصيل الزكاة — أندرويد
+
+            | الملف | الوصف |
+            |---|---|
+            | `zakat-fund-v1.0.0.apk` | **الإصدار الموقّع الرسمي — حمّل هذا** |
+            | `zakat-fund-debug.apk` | نسخة تجريبية للمطوّرين |
+
+            يتوافق مع **Android 9 حتى Android 14** (API 28–34).
+            يدعم: الطباعة الحرارية عبر البلوتوث (58/80مم)، الطباعة A4 الرسمية و PDF، النسخ الاحتياطي، العمل دون إنترنت.
+
+            ---
+            تطوير وبرمجة مازن عبدالوهاب · إدارة محاسبة صدام نجم الدين · جميع الحقوق محفوظة لشركة yemen coding
+          files: out/*.apk
+          overwrite_files: true
+          prerelease: false
+          make_latest: true

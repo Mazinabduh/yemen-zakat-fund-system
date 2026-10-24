@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- شاشة بداية أصلية: خلفية خضراء متدرجة عبر drawable + لا وميض أبيض -->
+    <style name="Theme.ZakatSplash" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:statusBarColor">@color/green_900</item>
+        <item name="android:navigationBarColor">@color/green_900</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+    </style>
+</resources>
